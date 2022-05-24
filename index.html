@@ -1,0 +1,140 @@
+<html>
+
+<head>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+      // let socket = io();
+      // let el;
+
+      // socket.on('time', (timeString, callback) => {
+      //   callback('ok')
+      //   el = document.getElementById('server-time');
+      //   el.innerHTML = 'Server time: ' + timeString;
+      // });
+  </script>
+
+</head>
+
+<body>
+  <p id="server-time"></p>
+  <hr>
+  <br>
+  <h3>Title</h3>
+  <input type="text" id="title" value="">
+  <h3>Body</h3>
+  <input type="text" id="body" value="">
+  <button onclick="sendMessage()">Send Message</button>
+
+  <script>
+
+    let queryString = window.location.search;
+    let urlParams = new URLSearchParams(queryString);
+    let id = urlParams.get('id')
+    console.log('appId: ' + id)
+
+    let socket = io();
+
+    socket.on('connect', () => {
+      console.log('connect - webId: ' + socket.id)
+      const message = {
+        from: socket.id,
+        content: {
+          title: "INITED",
+          body: "INITED",
+        },
+        to: id
+      }
+      socket.emit('PRIVATE_MESSAGE', message, function (result) {
+        console.log('emit --- TIMESTAMP: ' + new Date().toISOString() + '---')
+        console.log('Received callback at client: ' + result + '\ntitle: ' + message.content.title + '\nbody: ' + message.content.body + '\nfrom: ' + message.from + '\nto: ' + message.to)
+      });
+    })
+
+    socket.on("PRIVATE_MESSAGE", function ({ from, content, to }) {
+      console.log('on --- TIMESTAMP: ' + new Date().toISOString() + '---')
+      console.log('from:' + from)
+      console.log('content:' + content)
+      console.log('to:' + to)
+      // callback('RECEIVED')
+    })
+
+    // socket.on('PRIVATE_MESSAGE', function({ from, content, to }, callback) {
+    //   console.log('from:' + from)
+    //   console.log('content:' + content)
+    //   console.log('to:' + to)
+    //   callback("RECEIVED")
+    // })
+
+    // socket.on('time', (timeString, callback) => {
+    //   callback('ok')
+    //   el = document.getElementById('server-time');
+    //   el.innerHTML = 'Server time: ' + timeString;
+    // });
+
+    // socket.on('connect', () => {
+    //   console.log('connect')
+    //   let data = '{"id":"' + id + '", "title":"Mapping", "body":"' + socket.id + '"}'
+    //   socket.emit('web-app', data);
+    // })
+
+    // socket.on('disconnect', () => {
+    //   console.log('disconnect: ' + socket.id)
+    // })
+
+    // socket.on('connection-client', (data) => {
+    //   console.log('connection-client: ' + data)
+    // })
+
+
+    socket.on('disconnect-client', (data) => {
+      // const obj = JSON.parse(data)
+      // if (obj.id == id) {
+      //   console.log('Parner is disconnected: ' + data)
+      // }
+
+      if (data == id) {
+        console.log('Parner is disconnected: ' + data)
+      }
+    })
+
+
+    // socket.on('app-event', (data) => {
+    //   console.log('Received app-event: ' + data)
+    //   const obj = JSON.parse(data)
+    //   if (obj.id == id) {
+    //     console.log('Hanlde app-event: ' + data)
+    //   }
+    // })
+
+    function sendMessage() {
+      // let eventValue = document.getElementById("event").value
+      // let data = '{"id":' + id + ', "title":"set", "body":"' + eventValue + '"}'
+      // socket.emit('app-event', data);
+      const message = {
+        from: socket.id,
+        content: {
+          title: document.getElementById("title").value,
+          body: document.getElementById("body").value,
+        },
+        to: id
+      }
+      socket.emit('PRIVATE_MESSAGE', message, function (result) {
+        console.log('--- TIMESTAMP: ' + new Date().toISOString() + '---')
+        console.log('Received callback at client: ' + result + '\ntitle: ' + message.content.title + '\nbody: ' + message.content.body + '\nfrom: ' + message.from + '\nto: ' + message.to)
+      });
+    }
+
+    window.onbeforeunload = function (e) {
+      e = e || window.event;
+
+      if (e) {
+        e.returnValue = '?';
+      }
+
+      return '?';
+
+    };
+  </script>
+</body>
+
+</html>
