@@ -16,8 +16,8 @@ const io = socketIO(server, {
   cors: {
     origin: "http://localhost:3100",
   },
-  pingTimeout: 100,
-  pingInterval: 100,
+  pingTimeout: 500,
+  pingInterval: 500,
 
 });
 
